@@ -1,0 +1,36 @@
+{
+  "name": "conceal-faucet-api",
+  "version": "0.0.1",
+  "description": "CCX faucet backend with Redis-based sessions and Docker+PM2",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "NODE_ENV=development node server.js",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint . --write",
+    "format": "biome format .",
+    "format:fix": "biome format . --write"
+  },
+  "keywords": [
+    "conceal",
+    "ccx",
+    "faucet",
+    "redis",
+    "express"
+  ],
+  "author": "Acktarius",
+  "license": "BSD-3-Clause",
+  "type": "commonjs",
+  "dependencies": {
+    "conceal-api": "0.8.8",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^4.19.0",
+    "redis": "^4.6.13"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.3.0",
+    "node-fetch": "^2.7.0"
+  }
+}

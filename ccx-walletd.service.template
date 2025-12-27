@@ -1,0 +1,35 @@
+[Unit]
+Description=Conceal Wallet Daemon (walletd)
+After=network.target
+
+[Service]
+Type=simple
+User=YOUR_USERNAME
+Group=YOUR_USERNAME
+WorkingDirectory=/path/to/walletd/directory
+
+ExecStart=/path/to/walletd \
+    --daemon-address=DAEMON_IP \
+    --daemon-port=DAEMON_PORT \
+    --container-file=/path/to/file.wallet \
+    --container-password=WALLET_PASSWORD \
+    --bind-address=0.0.0.0 \
+    --bind-port=3333
+
+# Restart policy
+Restart=on-failure
+RestartSec=10s
+
+# Security hardening (optional, uncomment if needed)
+#NoNewPrivileges=true
+#PrivateTmp=true
+#ProtectSystem=strict
+#ProtectHome=read-only
+#ReadWritePaths=/path/to/data/directory
+
+# Resource limits (optional)
+#LimitNOFILE=8192
+
+[Install]
+WantedBy=multi-user.target
+

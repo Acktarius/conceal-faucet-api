@@ -1,0 +1,50 @@
+# Git
+.git
+.gitignore
+
+# Dependencies (will be installed via npm ci)
+node_modules
+
+# Environment files (should be mounted or passed at runtime)
+.env
+.env.*
+!.env.example
+
+# SSL certificates (should be mounted as volumes)
+ssl/
+*.pem
+*.key
+*.crt
+
+# Logs
+*.log
+logs/
+
+# Documentation
+README.md
+LOCAL_TESTING.md
+WALLETD_SETUP.md
+*.md
+
+# Testing
+test-local.sh
+
+# Service templates
+ccx-walletd.service.template
+
+# Docker files
+docker-compose*.yml
+Dockerfile
+.dockerignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
