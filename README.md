@@ -50,37 +50,6 @@ It exposes a REST API that validates gameplay via HttpOnly cookie sessions and e
 
 ---
 
-## ⚙️ Environment Variables
-
-File: `.env` (copied from `.env.example`)
-
-Conceal Wallet RPC
-
-WALLET_HOST=http://host.docker.internal
-WALLET_RPC_PORT=3333
-
-Session Secret
-
-JWT_SECRET=generate_a_long_random_secret
-
-Redis
-
-REDIS_HOST=redis
-REDIS_PORT=6379
-API
-
-PORT=3000
-NODE_ENV=production
-FRONTEND_URL=https://your-frontend.com
-Faucet Logic
-
-FAUCET_AMOUNT=100000 # 1 CCX = 100000 atomic units
-MIN_SCORE=1000
-
-text
-
----
-
 ## 🐳 Deployment 
 
 # 0. Prerequisites
@@ -132,16 +101,21 @@ nano .env
 Set at least:
 
 ```text
+FRONTEND_DOMAIN=https://your-frontend.com
+
+DAEMON_HOST=http://ip_address_of_daemon
+DAEMON_RPC_PORT=16000
+
 WALLET_HOST=http://host.docker.internal
 WALLET_RPC_PORT=3333
 
 REDIS_HOST=redis
 REDIS_PORT=6379
 
-PORT=3000
+PORT=3066
 NODE_ENV=production
 
-FAUCET_AMOUNT=100000
+FAUCET_AMOUNT=1000000
 MIN_SCORE=1000
 MIN_SESSION_TIME_MS=30000
 ```
