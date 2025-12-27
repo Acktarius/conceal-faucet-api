@@ -1,7 +1,7 @@
 # 🛰️ CCX Faucet Backend Architecture
 
 A secure, Dockerized backend designed for CCX (Conceal) rewards — ideal for integrating with small games or exchanges.  
-It exposes a REST API that validates gameplay via JWT sessions and enforces strict anti‑abuse rules with Redis.
+It exposes a REST API that validates gameplay via HttpOnly cookie sessions and enforces strict anti‑abuse rules with Redis.
 
 ---
 
@@ -17,6 +17,39 @@ It exposes a REST API that validates gameplay via JWT sessions and enforces stri
 
 ---
 
+## 🔐 How It Works
+
+### Session Token System
+
+1. **Start Game** (`/api/start-game?address=ccxXXX`)
+   - Creates a unique session token linked to the CCX address
+   - Token stored in Redis: `session:${token}` → `{ address: ccxXXX, createdAt: timestamp }`
+   - Token delivered as HttpOnly cookie (secure, not accessible via JavaScript)
+
+2. **Claim Reward** (`/api/claim`)
+   - Validates token from HttpOnly cookie
+   - Checks token's address matches claim request
+   - Verifies minimum session time passed (MIN_SESSION_TIME_MS)
+   - Checks IP and address cooldowns
+   - Sends CCX transaction if all validations pass
+
+### Anti-Abuse Protection
+
+**IP Cooldown:**
+- Tracks when each IP last claimed
+- Prevents same IP from claiming multiple times (even with different addresses)
+
+**Address Cooldown:**
+- Tracks when each CCX address last claimed
+- Prevents same address from claiming multiple times (even from different IPs)
+
+**Session Validation:**
+- Token must match the original CCX address
+- Prevents token reuse or token stealing
+- Enforces minimum play time before claim
+
+---
+
 ## ⚙️ Environment Variables
 
 File: `.env` (copied from `.env.example`)
@@ -25,9 +58,11 @@ Conceal Wallet RPC
 
 WALLET_HOST=http://host.docker.internal
 WALLET_RPC_PORT=3333
-JWT Secret
+
+Session Secret
 
 JWT_SECRET=generate_a_long_random_secret
+
 Redis
 
 REDIS_HOST=redis
