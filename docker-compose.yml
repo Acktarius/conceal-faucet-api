@@ -1,6 +1,5 @@
 version: '3.8'
 
-name: ccx-faucet
 services:
   redis:
     image: redis:7-alpine
@@ -21,6 +20,8 @@ services:
     restart: unless-stopped
     networks:
       - faucet-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     # No ports: nginx talks to it inside the network
 
   nginx:

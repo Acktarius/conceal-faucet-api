@@ -87,7 +87,7 @@ For other operating systems, see: https://docs.docker.com/engine/install/
 # 1. Clone & install
 
 ```bash
-git clone https://github.com/yourname/conceal-faucet-api.git
+git clone https://github.com/concealnetwork/conceal-faucet-api.git
 cd conceal-faucet-api
 
 npm ci --only=production
@@ -117,26 +117,28 @@ REDIS_PORT=6379
 PORT=3066
 NODE_ENV=production
 
+FAUCET_ADDRESS=ccx7...
 FAUCET_AMOUNT=1000000
 MIN_SCORE=1000
 MIN_SESSION_TIME_MS=30000
 ```
 
 
-# 3. SSL certificates with certbot (on the VPS host)
+# 3. SSL certificates with certbot
 
 ### a. Point DNS your-domain.com → your VPS IP.
 
-### b. Install certbot + nginx on host (one-time):
+### b. Install certbot:
 
 ```bash
 sudo apt update
-sudo apt install nginx certbot python3-certbot-nginx -y
+sudo apt install certbot -y
 ```
-### c. Obtain certs (nginx can be a dummy site just for issuance):
+
+### c. Obtain certificates (make sure port 80 is free):
 
 ```bash
-sudo certbot certonly --nginx -d your-domain.com
+sudo certbot certonly --standalone -d your-domain.com
 ```
 
 Certs will be at:
@@ -176,10 +178,10 @@ sudo iptables -L INPUT -n | grep 3333
 
 # 5. Docker build & run
 
-From ccx-faucet-api directory:
+From conceal-faucet-api directory:
 
 ```bash
-docker compose up -d --build
+docker-compose -p ccx-faucet up -d --build
 ```
 
 This starts:

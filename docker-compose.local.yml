@@ -1,6 +1,5 @@
 version: '3.8'
 
-name: ccx-faucet
 services:
   redis:
     image: redis:7-alpine
