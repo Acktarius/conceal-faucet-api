@@ -31,6 +31,8 @@ async function deleteSessionsForAddress(address) {
   }
 }
 
+const getClientIP = require("../utils/getClientIP");
+
 async function createSession(ip, address) {
   // Delete any existing sessions for this address to prevent multiple active sessions
   await deleteSessionsForAddress(address);
@@ -76,7 +78,10 @@ async function verifySessionToken(req, res, next) {
     return res.status(400).json({ error: "Session completed too quickly" });
   }
 
-  if (session.ip !== req.ip) {
+  // Get real client IP (handles proxy headers from nginx)
+  const clientIP = getClientIP(req);
+
+  if (session.ip !== clientIP) {
     return res.status(403).json({ error: "IP mismatch" });
   }
 

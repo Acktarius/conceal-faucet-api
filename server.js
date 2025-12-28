@@ -7,6 +7,9 @@ const faucetRoutes = require("./routes/faucet");
 
 const app = express();
 
+// Trust proxy to get real client IP (nginx sets X-Real-IP and X-Forwarded-For)
+app.set("trust proxy", true);
+
 app.use(express.json());
 app.use(cookieParser());
 

@@ -1,9 +1,10 @@
 const { redisClient } = require("./sessionToken");
+const getClientIP = require("../utils/getClientIP");
 
 const COOLDOWN_SECONDS = process.env.COOLDOWN_SECONDS || 24 * 60 * 60;
 
 async function checkCooldown(req, res, next) {
-  const ip = req.ip;
+  const ip = getClientIP(req);
   const address = req.body.address;
 
   if (!address) {

@@ -2,6 +2,7 @@ const express = require("express");
 const CCX = require("conceal-api");
 const { createSession, verifySessionToken, deleteSession } = require("../middleware/sessionToken");
 const { checkCooldown, setCooldownOnSuccess } = require("../middleware/antiAbuse");
+const getClientIP = require("../utils/getClientIP");
 
 const router = express.Router();
 
@@ -44,7 +45,9 @@ router.get("/start-game", async (req, res) => {
   }
 
   try {
-    const token = await createSession(req.ip, address);
+    // Get real client IP (handles proxy headers from nginx)
+    const clientIP = getClientIP(req);
+    const token = await createSession(clientIP, address);
 
     // Set HttpOnly cookie for security (cross-domain)
     res.cookie("faucet-token", token, {
