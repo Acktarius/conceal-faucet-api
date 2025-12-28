@@ -1,8 +1,11 @@
 // examples/integration.js
 // Simple Node.js script showing how another backend or tool
 // could talk to your faucet API (start-game + claim).
+// Note: This uses cookies, so we need a cookie jar to handle HttpOnly cookies.
 
 const fetch = require("node-fetch"); // npm install node-fetch@2
+const { CookieJar } = require("tough-cookie"); // npm install tough-cookie
+const { fetchCookie } = require("fetch-cookie"); // npm install fetch-cookie
 
 const API_BASE = "https://your-domain.com/api";
 const CCX_ADDRESS = "ccxYourAddressHere";
@@ -10,8 +13,12 @@ const SCORE = 1500; // example score above MIN_SCORE
 
 async function main() {
   try {
-    // 1) Start game: get session token
-    const startRes = await fetch(
+    // Create a cookie jar to handle HttpOnly cookies
+    const cookieJar = new CookieJar();
+    const fetchWithCookies = fetchCookie(fetch, cookieJar);
+
+    // 1) Start game: session token is set as HttpOnly cookie
+    const startRes = await fetchWithCookies(
       `${API_BASE}/start-game?address=${encodeURIComponent(CCX_ADDRESS)}`,
     );
     if (!startRes.ok) {
@@ -21,19 +28,20 @@ async function main() {
     }
 
     const startData = await startRes.json();
-    const token = startData.token;
-    console.log("Received session token:", token);
+    console.log("Session started:", startData);
+    // Cookie is stored in cookieJar automatically (HttpOnly, can't be read)
 
     // Normally the user would play the game here.
     // Simulate a game delay:
     await new Promise((r) => setTimeout(r, 35000)); // 35 seconds
 
     // 2) Claim after winning
-    const claimRes = await fetch(`${API_BASE}/claim`, {
+    // Cookie is sent automatically by fetchWithCookies
+    const claimRes = await fetchWithCookies(`${API_BASE}/claim`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-Faucet-Token": token,
+        // NO token header needed - cookie is sent automatically!
       },
       body: JSON.stringify({
         address: CCX_ADDRESS,

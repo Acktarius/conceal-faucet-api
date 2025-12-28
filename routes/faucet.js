@@ -64,7 +64,7 @@ router.get("/start-game", async (req, res) => {
   }
 });
 
-// POST /api/claim  (headers: X-Faucet-Token; body: { address, score })
+// POST /api/claim  (cookie: faucet-token; body: { address, score })
 router.post("/claim", verifySessionToken, checkCooldown, setCooldownOnSuccess, async (req, res) => {
   const { address, score } = req.body;
   const { address: sessionAddr } = req.sessionData;

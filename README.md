@@ -19,19 +19,26 @@ It exposes a REST API that validates gameplay via HttpOnly cookie sessions and e
 
 ## 🔐 How It Works
 
-### Session Token System
+### Session Token System (HttpOnly Cookies)
+
+The API uses **HttpOnly cookies** for secure session management. The token is never exposed to JavaScript, preventing XSS attacks.
 
 1. **Start Game** (`/api/start-game?address=ccxXXX`)
-   - Creates a unique session token linked to the CCX address
-   - Token stored in Redis: `session:${token}` → `{ address: ccxXXX, createdAt: timestamp }`
-   - Token delivered as HttpOnly cookie (secure, not accessible via JavaScript)
+   - Creates a unique session token linked to the CCX address and IP
+   - Token stored in Redis: `session:${token}` → `{ ip, address, startedAt: timestamp }`
+   - Token set as **HttpOnly cookie** (`faucet-token`) - **not accessible via JavaScript**
+   - Cookie is automatically sent by the browser on subsequent requests
+   - Cookie expires after 10 minutes or after successful claim
 
 2. **Claim Reward** (`/api/claim`)
-   - Validates token from HttpOnly cookie
+   - Browser automatically sends the HttpOnly cookie (no manual token handling needed)
+   - Validates token from cookie
    - Checks token's address matches claim request
+   - Verifies IP matches the session (prevents cookie theft)
    - Verifies minimum session time passed (MIN_SESSION_TIME_MS)
    - Checks IP and address cooldowns
    - Sends CCX transaction if all validations pass
+   - Cookie is cleared after successful claim
 
 ### Anti-Abuse Protection
 
@@ -208,20 +215,38 @@ Expected JSON on success:
 ```
 
 # 7. Usage examples (frontend / test)
+
+## Frontend Integration
+
+**Important**: The API uses **HttpOnly cookies**. You don't need to manually read or send tokens - the browser handles this automatically.
+
 ### 7.1 Start session
 
-Request:
+**Request:**
+```javascript
+// Frontend (JavaScript/TypeScript)
+const response = await fetch(
+  `https://your-domain.com/api/start-game?address=${encodeURIComponent(ccxAddress)}`,
+  {
+    credentials: 'include', // CRITICAL: Required to send/receive cookies
+  }
+);
 
+const data = await response.json();
+// { success: true, message: "Session started" }
+
+// Cookie is set automatically by browser (HttpOnly, can't be read by JavaScript)
+```
+
+**Using curl (for testing):**
 ```bash
-curl -i "https://your-domain.com/api/start-game?address=ccxYourAddressHere"
+# Save cookie to file
+curl -i -c cookies.txt "https://your-domain.com/api/start-game?address=ccxYourAddressHere"
 ```
 
-**Response Header:**
-```
-X-Faucet-Token: f05e3f0a8e1b4c7a...<64-hex-chars>...
-```
-
-**Response Body:**
+**Response:**
+- **Set-Cookie header**: `faucet-token=<token>; HttpOnly; Secure; SameSite=None`
+- **Response Body:**
 ```json
 {
   "success": true,
@@ -229,31 +254,45 @@ X-Faucet-Token: f05e3f0a8e1b4c7a...<64-hex-chars>...
 }
 ```
 
-**Important**: Extract the token from the **`X-Faucet-Token` response header** and store it in your frontend (e.g. sessionStorage), associated with that CCX address.
+**Note**: The token is in the HttpOnly cookie and cannot be accessed via JavaScript. This prevents XSS attacks.
 
 ### 7.2 Claim reward after win
 
-**IMPORTANT**: The token MUST be sent in the **HTTP header** `X-Faucet-Token`, NOT in the request body!
+**Frontend (JavaScript/TypeScript):**
+```javascript
+const response = await fetch('https://your-domain.com/api/claim', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    // NO token header needed - cookie is sent automatically!
+  },
+  credentials: 'include', // CRITICAL: Required to send cookies
+  body: JSON.stringify({
+    address: ccxAddress, // Must match address from start-game
+    score: 1500, // Must be >= MIN_SCORE from .env
+  }),
+});
 
-**Required Headers:**
-* `Content-Type: application/json`
-* `X-Faucet-Token: <token-from-start-game>` ← **Token goes HERE in header!**
+const data = await response.json();
+```
 
-**Request Body (JSON):**
-* `address`: CCX address (must match the one from start-game)
-* `score`: Game score (must be >= MIN_SCORE from .env)
-
-Example:
-
+**Using curl (for testing):**
 ```bash
+# Use saved cookie from start-game
 curl -X POST "https://your-domain.com/api/claim" \
+  -b cookies.txt \
   -H "Content-Type: application/json" \
-  -H "X-Faucet-Token: f05e3f0a8e1b4c7a..." \
   -d '{
     "address": "ccxYourAddressHere",
     "score": 1500
   }'
 ```
+
+**Request Requirements:**
+- Cookie must be sent (automatically handled by browser with `credentials: 'include'`)
+- Request body must include:
+  - `address`: CCX address (must match the one from start-game)
+  - `score`: Game score (must be >= MIN_SCORE from .env)
 Possible success response:
 
 ```json

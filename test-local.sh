@@ -24,7 +24,7 @@ else
 fi
 
 echo
-echo "== 2) Start game (get session token) =="
+echo "== 2) Start game (session token set as HttpOnly cookie) =="
 # Save cookies to a temp file
 COOKIE_FILE=$(mktemp)
 START_RESPONSE=$(curl -si -c "$COOKIE_FILE" "$API_BASE/start-game?address=$CCX_ADDRESS")
@@ -37,7 +37,9 @@ if ! grep -q "faucet-token" "$COOKIE_FILE"; then
   exit 1
 fi
 
-echo "✓ Got session cookie (HttpOnly, stored in browser)"
+echo "✓ Got session cookie (HttpOnly cookie saved to file)"
+echo "  Cookie file: $COOKIE_FILE"
+echo "  Cookie will be sent automatically with -b flag"
 echo
 
 echo "== 3) Waiting 6 seconds (MIN_SESSION_TIME_MS) =="
@@ -48,7 +50,7 @@ done
 echo
 echo
 
-echo "== 4) Claim reward =="
+echo "== 4) Claim reward (cookie sent automatically) =="
 CLAIM_RESPONSE=$(curl -s -X POST "$API_BASE/claim" \
   -b "$COOKIE_FILE" \
   -H "Content-Type: application/json" \
