@@ -22,6 +22,8 @@ services:
       - faucet-network
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    volumes:
+      - ./faucet.log:/app/faucet.log
     # No ports: nginx talks to it inside the network
 
   nginx:

@@ -173,9 +173,9 @@ sudo netfilter-persistent save
 
 **Solution**: Wait at least 5 seconds (MIN_SESSION_TIME_MS=5000) between start-game and claim
 
-### IP/Address cooldown
+### Rate limit or cooldown
 
-**Error**: "IP cooldown active" or "Address cooldown active"
+**Error**: "Request not available at this time"
 
 **Solution**: 
 - Wait 5 minutes (COOLDOWN_SECONDS=300 in local config)

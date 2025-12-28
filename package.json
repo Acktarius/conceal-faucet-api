@@ -1,6 +1,6 @@
 {
   "name": "conceal-faucet-api",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "CCX faucet backend with Redis-based sessions and Docker+PM2",
   "main": "server.js",
   "scripts": {
@@ -27,6 +27,7 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^4.19.0",
+    "express-rate-limit": "8.2.1",
     "redis": "^4.6.13"
   },
   "devDependencies": {

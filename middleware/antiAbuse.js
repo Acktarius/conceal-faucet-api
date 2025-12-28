@@ -1,5 +1,6 @@
 const { redisClient } = require("./sessionToken");
 const getClientIP = require("../utils/getClientIP");
+const { logSecurityEvent } = require("../utils/logger");
 
 const COOLDOWN_SECONDS = process.env.COOLDOWN_SECONDS || 24 * 60 * 60;
 
@@ -20,11 +21,23 @@ async function checkCooldown(req, res, next) {
   ]);
 
   if (ipExists) {
-    return res.status(429).json({ error: "IP cooldown active" });
+    // Log to file (Fail2Ban-friendly format, no console output)
+    logSecurityEvent("ABUSE", {
+      IP: ip,
+      ADDR: address,
+      REASON: "Cooldown",
+    });
+    return res.status(429).json({ error: "Request not available at this time" });
   }
 
   if (addrExists) {
-    return res.status(429).json({ error: "Address cooldown active" });
+    // Log to file (Fail2Ban-friendly format, no console output)
+    logSecurityEvent("ABUSE", {
+      IP: ip,
+      ADDR: address,
+      REASON: "Cooldown",
+    });
+    return res.status(429).json({ error: "Request not available at this time" });
   }
 
   req.cooldownKeys = { ipKey, addrKey };

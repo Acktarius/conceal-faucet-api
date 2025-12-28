@@ -4,3 +4,6 @@ jspm_packages/
 
 # dotenv environment variable files
 .env
+
+# Log files
+faucet.log

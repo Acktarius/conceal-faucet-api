@@ -26,6 +26,8 @@ services:
       - faucet-network
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    volumes:
+      - ./faucet.log:/app/faucet.log
 
 networks:
   faucet-network:
